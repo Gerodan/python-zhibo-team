@@ -10,9 +10,8 @@ import requests
 import cookielib
 from bs4 import BeautifulSoup
 import logingjj
+import time,datetime
  
-## 这段代码是用于解决中文报错的问题  
-
 reqURL = 'http://www.zhibo8.cc/'
 
 class GetInfo(object):
@@ -20,6 +19,23 @@ class GetInfo(object):
     def __init__(self):
         self.opener = urllib2.build_opener() 
         urllib2.install_opener(self.opener)    
+
+
+    def get_week_day(self,dateStr):
+
+	thisDate = datetime.datetime.strptime(dateStr, "%Y-%m-%d %H:%M")
+
+        week_day_dict = {
+        0 : '周一',
+        1 : '周二',
+        2 : '周三',
+        3 : '周四',
+        4 : '周五',
+        5 : '周六',
+        6 : '周日',
+        }
+
+        return week_day_dict[thisDate.weekday()]
      
     def getInfo(self):
 	'''请求内容'''
@@ -33,7 +49,8 @@ class GetInfo(object):
 	thisPageSoup = BeautifulSoup(thePage)
 	
 	for thisOneNameContent in thisPageSoup.find_all("li", attrs={"label":re.compile(ur".*"+keyWord+".*")}) :
-		print thisOneNameContent["data-time"]+"  "+thisOneNameContent.b.get_text()
+		
+		print thisOneNameContent["data-time"]+"("+self.get_week_day(thisOneNameContent["data-time"])+") "+thisOneNameContent.b.get_text()
 
 		print '#########################################################'+'\n'
 		
@@ -49,7 +66,9 @@ if __name__ == '__main__':
 	if   (len(sys.argv)==2) :
 		keyWord= sys.argv[1]
 	
-	print '以下是'+keyWord+'近期的赛事'
+	print '以下是'+keyWord+'近期的赛事\n'
 
 	getInfo = GetInfo()
 	getInfo.getInfo()
+
+
